@@ -45,28 +45,6 @@ series([
     if (node.isOnline()) {
       console.log('\nNode is now ready and online')
     }
-    node.id(function(err, data){
-      console.log("Node info:", data)
-    })
-
-
-    const receiveMsg = (msg) => {
-      console.log(msg.data.toString());
-      if(msg.data.toString() == "on"){
-      //  led.on();
-      } else {
-        // led.off();
-      }
-    }
-    node.pubsub.subscribe(topic, receiveMsg);
-    cb()
-
-  },
-  /*
-   * Awesome we've added a file so let's retrieve and
-   * display its contents from IPFS
-   */
-  (cb) => {
 
     var msgSend;
     var counter = 0
@@ -80,16 +58,19 @@ series([
       })
       counter++
 
-      // node.swarm.peers(function (err, peerInfos) {
-      //     console.log("Peers: " + peerInfos.length)
-      //   })
+      node.swarm.peers(function (err, peerInfos) {
+          console.log("Peers: " + peerInfos.length)
+        })
 
     }, 3000);
 
+
+
   }
+
 ], (err) => {
   if (err) {
     return console.log(err)
   }
-  console.log('Success!')
+  console.log('Listening for IPFS publishes...')
 })
