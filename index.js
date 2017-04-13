@@ -5,6 +5,8 @@ const path = require('path')
 const series = require('async/series')
 const IPFS = require('ipfs')
 const topic = "general"
+var nodeData
+
 /*
  * Create a new IPFS instance, using default repo (fs) on default path (~/.ipfs)
  */
@@ -47,31 +49,36 @@ series([
     }
     node.id(function(err, data){
       console.log("Node info:", data)
+      nodeData = data
     })
 
 
     const receiveMsg = (msg) => {
       console.log(msg.data.toString());
-      if(msg.data.toString() == "on"){
-      //  led.on();
-      } else {
-        // led.off();
-      }
+
+      var dataObj = JSON.parse(msg.data.toString())
+      console.log("node id", dataObj.node.id);
+
     }
     node.pubsub.subscribe(topic, receiveMsg);
     cb()
 
   },
   /*
-   * Awesome we've added a file so let's retrieve and
-   * display its contents from IPFS
+   * Awesome we've subscribed to a topic so let's publish
+   * some data via IPFS
    */
   (cb) => {
 
     var msgSend;
     var counter = 0
     setInterval(function(){
-      msgSend = new Buffer(counter.toString());
+      var msgObj = {
+        node: nodeData,
+        counter: counter
+      }
+      // msgSend = new Buffer(counter.toString());
+      msgSend = new Buffer(JSON.stringify(msgObj).toString());
       node.pubsub.publish(topic, msgSend, (err) => {
         if (err) {
           throw err
@@ -80,9 +87,9 @@ series([
       })
       counter++
 
-      // node.swarm.peers(function (err, peerInfos) {
-      //     console.log("Peers: " + peerInfos.length)
-      //   })
+      node.swarm.peers(function (err, peerInfos) {
+          console.log("Peers: " + peerInfos.length)
+        })
 
     }, 3000);
 

@@ -14,7 +14,12 @@ const node = new IPFS({
   start: false,
   EXPERIMENTAL: {
     pubsub: true
-  }
+  },
+  Addresses: {
+    Swarm: [
+      "/ip4/0.0.0.0/tcp/4002"
+    ]
+  }  
 })
 
 series([
